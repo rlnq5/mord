@@ -235,9 +235,19 @@
             object-fit: cover;
             filter: blur(9px);
             transition: filter 180ms ease;
+            cursor: pointer;
         }
 
-        .photo-card:hover img, .photo-card:focus-within img, .photo-card img:focus { filter: blur(0); }
+        .photo-card.revealed img { filter: blur(0); }
+
+        .photo-card img:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: -3px;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .photo-card:hover img { filter: blur(0); }
+        }
 
         .remove-photo {
             position: absolute;
@@ -547,7 +557,22 @@
                     image.src = URL.createObjectURL(photo.image);
                     image.alt = photo.name || 'صورة من ألبومي';
                     image.tabIndex = 0;
+                    image.setAttribute('role', 'button');
+                    image.setAttribute('aria-pressed', 'false');
+                    image.setAttribute('aria-label', `تبديل وضوح الصورة ${photo.name || ''}`);
                     photoUrls.add(image.src);
+
+                    const toggleImage = () => {
+                        const revealed = card.classList.toggle('revealed');
+                        image.setAttribute('aria-pressed', String(revealed));
+                    };
+                    image.addEventListener('click', toggleImage);
+                    image.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            toggleImage();
+                        }
+                    });
 
                     const removeButton = document.createElement('button');
                     removeButton.className = 'remove-photo';
