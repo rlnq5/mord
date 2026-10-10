@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1220">
+    <title>خزنتي | مساحة ملاحظاتك الخاصة</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --page: #0b1220;
+            --panel: #111b2d;
+            --panel-raised: #162238;
+            --border: #26354c;
+            --text: #edf3fb;
+            --muted: #9aabc1;
+            --accent: #72e0c1;
+            --accent-dark: #173d3a;
+            --warning: #f3c875;
+            --danger: #ff9a9a;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            background:
+                radial-gradient(ellipse at 12% 0%, rgb(48 111 119 / 17%), transparent 38rem),
+                var(--page);
+            color: var(--text);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        button, textarea, input { font: inherit; }
+
+        button:focus-visible, textarea:focus-visible, input:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        .page {
+            width: min(100% - 36px, 1040px);
+            margin: 0 auto;
+            padding: 28px 0 42px;
+        }
+
+        .topbar, .brand, .local-status, .section-heading, .note-footer {
+            display: flex;
+            align-items: center;
+        }
+
+        .topbar {
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 52px;
+        }
+
+        .brand { gap: 11px; }
+
+        .brand-mark {
+            display: grid;
+            width: 43px;
+            height: 43px;
+            place-items: center;
+            border: 1px solid rgb(114 224 193 / 35%);
+            border-radius: 14px;
+            background: linear-gradient(145deg, #1c4145, #142a37);
+            color: var(--accent);
+            font-size: 21px;
+        }
+
+        .brand-name { font-size: 1.08rem; font-weight: 800; }
+        .brand-caption { margin-top: 3px; color: var(--muted); font-size: 0.76rem; }
+
+        .local-status {
+            gap: 8px;
+            color: #b7c8da;
+            font-size: 0.82rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 12px rgb(114 224 193 / 65%);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(230px, 0.65fr);
+            align-items: center;
+            gap: 28px;
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            margin: 0 0 12px;
+            color: var(--accent);
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        h1 {
+            max-width: 610px;
+            margin: 0;
+            font-size: clamp(2rem, 5vw, 3.45rem);
+            letter-spacing: -0.045em;
+            line-height: 1.25;
+        }
+
+        .hero-copy {
+            max-width: 580px;
+            margin: 16px 0 0;
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.9;
+        }
+
+        .hero-card {
+            position: relative;
+            min-height: 180px;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background:
+                radial-gradient(circle at 50% 60%, rgb(114 224 193 / 15%), transparent 55%),
+                linear-gradient(145deg, #17263a, #111a2b);
+        }
+
+        .hero-card::before, .hero-card::after {
+            position: absolute;
+            content: "";
+            border: 1px solid rgb(114 224 193 / 14%);
+            border-radius: 50%;
+        }
+
+        .hero-card::before { width: 210px; height: 210px; }
+        .hero-card::after { width: 155px; height: 155px; }
+
+        .hero-lock {
+            z-index: 1;
+            display: grid;
+            width: 78px;
+            height: 78px;
+            place-items: center;
+            border: 1px solid rgb(114 224 193 / 30%);
+            border-radius: 25px;
+            background: linear-gradient(145deg, #1e4847, #142e38);
+            color: var(--accent);
+            font-size: 35px;
+            box-shadow: 0 12px 42px rgb(0 0 0 / 30%);
+        }
+
+        .vault-card {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--panel);
+            box-shadow: 0 20px 65px rgb(0 0 0 / 16%);
+        }
+
+        .album-card {
+            padding: 22px 25px 25px;
+            margin-bottom: 22px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--panel);
+            box-shadow: 0 20px 65px rgb(0 0 0 / 16%);
+        }
+
+        .album-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 7px;
+        }
+
+        .album-heading h2 { margin: 0; font-size: 1.08rem; }
+        .album-copy, .album-status { color: var(--muted); font-size: 0.82rem; line-height: 1.7; }
+        .album-status[data-state="error"] { color: var(--danger); }
+
+        .album-upload {
+            display: inline-flex;
+            min-height: 40px;
+            align-items: center;
+            padding: 8px 14px;
+            margin-top: 14px;
+            border: 1px solid rgb(114 224 193 / 45%);
+            border-radius: 10px;
+            background: var(--accent-dark);
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .album-upload input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip-path: inset(50%);
+            white-space: nowrap;
+        }
+
+        .album-upload:focus-within { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .photo-card {
+            position: relative;
+            height: 150px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #0c1422;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: blur(9px);
+            transition: filter 180ms ease;
+        }
+
+        .photo-card:hover img, .photo-card:focus-within img, .photo-card img:focus { filter: blur(0); }
+
+        .remove-photo {
+            position: absolute;
+            inset-block-start: 8px;
+            inset-inline-start: 8px;
+            display: grid;
+            width: 32px;
+            height: 32px;
+            place-items: center;
+            border: 1px solid rgb(255 255 255 / 22%);
+            border-radius: 9px;
+            background: rgb(13 17 23 / 84%);
+            color: #ffc0c0;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .album-empty {
+            padding: 20px 12px 0;
+            color: #74859c;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .section-heading {
+            justify-content: space-between;
+            gap: 16px;
+            padding: 23px 25px 19px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-heading h2 { margin: 0; font-size: 1.08rem; }
+
+        .save-status {
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+
+        .save-status[data-state="error"] { color: var(--danger); }
+        .save-status[data-state="saved"] { color: var(--accent); }
+
+        .editor-area { padding: 22px 25px 25px; }
+
+        .mode-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #cfdaea;
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .mode-switch {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 17px;
+        }
+
+        .mode-button, .clear-button {
+            min-height: 40px;
+            padding: 9px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--panel-raised);
+            color: #c6d3e3;
+            cursor: pointer;
+            transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+        }
+
+        .mode-button:hover, .clear-button:hover { border-color: #526781; }
+
+        .mode-button[aria-pressed="true"] {
+            border-color: rgb(114 224 193 / 55%);
+            background: var(--accent-dark);
+            color: var(--accent);
+        }
+
+        textarea {
+            display: block;
+            width: 100%;
+            min-height: 190px;
+            padding: 16px;
+            resize: vertical;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: #0c1422;
+            color: var(--text);
+            font-size: 1rem;
+            line-height: 1.9;
+        }
+
+        textarea::placeholder { color: #74859c; }
+
+        .note-footer {
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 13px;
+        }
+
+        .character-count { color: var(--muted); font-size: 0.78rem; }
+
+        .clear-button {
+            min-height: 36px;
+            padding: 7px 12px;
+            color: #ffc0c0;
+        }
+
+        .preview {
+            min-height: 82px;
+            padding: 15px 16px;
+            margin-top: 18px;
+            overflow-wrap: anywhere;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: #0c1422;
+            color: #dce8f6;
+            font-size: 0.97rem;
+            line-height: 1.9;
+            white-space: pre-wrap;
+        }
+
+        .preview-placeholder { color: #74859c; }
+        .preview.melted { filter: blur(7px); transition: filter 180ms ease; }
+        .preview.melted:hover, .preview.melted:focus { filter: blur(0); }
+        .preview.morse { color: #a7d9ff; font-family: monospace; letter-spacing: 0.08em; }
+
+        .notice {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 15px 17px;
+            margin-top: 18px;
+            border: 1px solid rgb(243 200 117 / 24%);
+            border-radius: 13px;
+            background: rgb(243 200 117 / 6%);
+            color: #dfc995;
+            font-size: 0.81rem;
+            line-height: 1.8;
+        }
+
+        .notice-icon { flex: 0 0 auto; color: var(--warning); }
+
+        .footer {
+            padding-top: 20px;
+            color: #77879b;
+            font-size: 0.75rem;
+            text-align: center;
+        }
+
+        @media (max-width: 680px) {
+            .page { width: min(100% - 24px, 540px); padding-top: 19px; }
+            .topbar { margin-bottom: 34px; }
+            .hero { grid-template-columns: 1fr; gap: 20px; margin-bottom: 21px; }
+            .hero-card { min-height: 125px; }
+            .hero-lock { width: 63px; height: 63px; font-size: 29px; }
+            .section-heading { align-items: flex-start; padding: 19px 17px 15px; }
+            .album-card { padding: 18px 17px 20px; }
+            .editor-area { padding: 18px 17px 20px; }
+            .mode-button { flex: 1 1 auto; }
+            textarea { min-height: 165px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">⌑</div>
+                <div>
+                    <div class="brand-name">خزنتي</div>
+                    <div class="brand-caption">مساحتك الخاصة للأفكار</div>
+                </div>
+            </div>
+            <div class="local-status"><span class="status-dot" aria-hidden="true"></span>حفظ محلي</div>
+        </header>
+
+        <section class="hero" aria-labelledby="page-title">
+            <div>
+                <p class="eyebrow">مساحة هادئة لأفكارك</p>
+                <h1 id="page-title">أفكارك في مكان واحد، على جهازك.</h1>
+                <p class="hero-copy">اكتب ملاحظتك واحفظها تلقائياً في هذا المتصفح. لا تُرسل ملاحظاتك إلى خادم.</p>
+            </div>
+            <div class="hero-card" aria-hidden="true"><div class="hero-lock">⌑</div></div>
+        </section>
+
+        <section class="album-card" aria-labelledby="album-title">
+            <div class="album-heading">
+                <h2 id="album-title">📸 ألبوم صوري</h2>
+                <span id="albumStatus" class="album-status" role="status" aria-live="polite">الصور تبقى على هذا الجهاز</span>
+            </div>
+            <p class="album-copy">أضف صوراً متعددة من جهازك. اضغط على الصورة أو مرر المؤشر عليها لإزالة التمويه.</p>
+            <label class="album-upload">＋ إضافة صور
+                <input id="photoInput" type="file" accept="image/*" multiple>
+            </label>
+            <div id="photoGrid" class="photo-grid" aria-label="الصور المحفوظة"></div>
+            <div id="albumEmpty" class="album-empty">لم تضف صوراً بعد.</div>
+        </section>
+
+        <section class="vault-card" aria-labelledby="note-title">
+            <div class="section-heading">
+                <h2 id="note-title">ملاحظتي</h2>
+                <span id="saveStatus" class="save-status" role="status" aria-live="polite">جاهز للكتابة</span>
+            </div>
+            <div class="editor-area">
+                <label class="mode-label" for="noteInput">طريقة عرض المعاينة</label>
+                <div class="mode-switch" role="group" aria-label="طريقة عرض المعاينة">
+                    <button class="mode-button" type="button" data-mode="normal" aria-pressed="true">نص عادي</button>
+                    <button class="mode-button" type="button" data-mode="melted" aria-pressed="false">💧 حبر مذيب</button>
+                    <button class="mode-button" type="button" data-mode="morse" aria-pressed="false">📻 مورس</button>
+                </div>
+
+                <textarea id="noteInput" rows="7" placeholder="اكتب ملاحظتك هنا... ستُحفظ تلقائياً في هذا المتصفح." aria-describedby="privacyNotice"></textarea>
+                <div class="note-footer">
+                    <span id="characterCount" class="character-count">0 حرف</span>
+                    <button id="clearButton" class="clear-button" type="button">مسح الملاحظة</button>
+                </div>
+
+                <div id="preview" class="preview" tabindex="0" aria-label="معاينة الملاحظة">
+                    <span class="preview-placeholder">ستظهر معاينتك هنا.</span>
+                </div>
+
+                <aside id="privacyNotice" class="notice">
+                    <span class="notice-icon" aria-hidden="true">ⓘ</span>
+                    <span>تُحفظ الملاحظة في مساحة التخزين المحلية للمتصفح على هذا الجهاز. لا تُعد هذه الصفحة تشفيراً بكلمة مرور؛ التمويه ومورس مجرد طريقتين لعرض النص وليستا وسيلتي حماية.</span>
+                </aside>
+            </div>
+        </section>
+
+        <footer class="footer">ملاحظاتك تبقى في هذا المتصفح. مسح بيانات المتصفح قد يحذفها.</footer>
+    </main>
+
+    <script>
+        const STORAGE_KEY = 'my-vault-note';
+        const noteInput = document.getElementById('noteInput');
+        const preview = document.getElementById('preview');
+        const saveStatus = document.getElementById('saveStatus');
+        const characterCount = document.getElementById('characterCount');
+        const clearButton = document.getElementById('clearButton');
+        const modeButtons = document.querySelectorAll('.mode-button');
+        const photoInput = document.getElementById('photoInput');
+        const photoGrid = document.getElementById('photoGrid');
+        const albumEmpty = document.getElementById('albumEmpty');
+        const albumStatus = document.getElementById('albumStatus');
+        const photoUrls = new Set();
+
+        const morseAlphabet = {
+            'ا': '•-', 'ب': '-•••', 'ت': '-', 'ث': '-•-•', 'ج': '•---', 'ح': '••••',
+            'خ': '---', 'د': '-••', 'ذ': '--••', 'ر': '•-•', 'ز': '---•', 'س': '•••',
+            'ش': '----', 'ص': '-••-', 'ض': '••-••', 'ط': '••-', 'ظ': '-•--', 'ع': '•-•-',
+            'غ': '••--', 'ف': '••-•', 'ق': '--•-', 'ك': '-•-', 'ل': '•-••', 'م': '--',
+            'ن': '-•', 'ه': '•---•', 'و': '•--', 'ي': '••',
+            'a': '•-', 'b': '-•••', 'c': '-•-•', 'd': '-••', 'e': '•', 'f': '••-•',
+            'g': '--•', 'h': '••••', 'i': '••', 'j': '•---', 'k': '-•', 'l': '•-••',
+            'm': '--', 'n': '-•', 'o': '---', 'p': '•--•', 'q': '--•-', 'r': '•-•',
+            's': '•••', 't': '-', 'u': '••-', 'v': '•••-', 'w': '•--', 'x': '-••-',
+            'y': '-•--', 'z': '--••', ' ': '/'
+        };
+
+        let currentMode = 'normal';
+
+        function openPhotoDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('my-vault-photos', 1);
+                request.onupgradeneeded = () => {
+                    request.result.createObjectStore('photos', { keyPath: 'id' });
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function photoTransaction(mode, operation) {
+            return openPhotoDatabase().then((database) => new Promise((resolve, reject) => {
+                const transaction = database.transaction('photos', mode);
+                const request = operation(transaction.objectStore('photos'));
+                let result;
+                request.onsuccess = () => { result = request.result; };
+                request.onerror = () => reject(request.error);
+                transaction.oncomplete = () => {
+                    database.close();
+                    resolve(result);
+                };
+                transaction.onabort = () => {
+                    database.close();
+                    reject(transaction.error || new Error('Photo storage transaction aborted.'));
+                };
+            }));
+        }
+
+        async function renderPhotos() {
+            try {
+                const photos = await photoTransaction('readonly', (store) => store.getAll());
+                photoUrls.forEach((url) => URL.revokeObjectURL(url));
+                photoUrls.clear();
+                photoGrid.replaceChildren();
+                albumEmpty.hidden = photos.length > 0;
+
+                photos.forEach((photo) => {
+                    const card = document.createElement('div');
+                    card.className = 'photo-card';
+
+                    const image = document.createElement('img');
+                    image.src = URL.createObjectURL(photo.image);
+                    image.alt = photo.name || 'صورة من ألبومي';
+                    image.tabIndex = 0;
+                    photoUrls.add(image.src);
+
+                    const removeButton = document.createElement('button');
+                    removeButton.className = 'remove-photo';
+                    removeButton.type = 'button';
+                    removeButton.textContent = '×';
+                    removeButton.setAttribute('aria-label', `حذف الصورة ${photo.name || ''}`);
+                    removeButton.addEventListener('click', async () => {
+                        try {
+                            await photoTransaction('readwrite', (store) => store.delete(photo.id));
+                            await renderPhotos();
+                        } catch (error) {
+                            albumStatus.textContent = 'تعذر حذف الصورة';
+                            albumStatus.dataset.state = 'error';
+                            console.error('Unable to remove photo from local database.', error);
+                        }
+                    });
+
+                    card.append(image, removeButton);
+                    photoGrid.append(card);
+                });
+            } catch (error) {
+                albumStatus.textContent = 'تعذر تحميل الصور المحفوظة';
+                albumStatus.dataset.state = 'error';
+                console.error('Unable to load photos from local database.', error);
+            }
+        }
+
+        photoInput.addEventListener('change', async () => {
+            const files = Array.from(photoInput.files || []);
+            photoInput.value = '';
+            const images = files.filter((file) => file.type.startsWith('image/'));
+
+            if (!images.length) {
+                albumStatus.textContent = 'اختر ملف صورة صالحاً.';
+                albumStatus.dataset.state = 'error';
+                return;
+            }
+
+            try {
+                for (const image of images) {
+                    await photoTransaction('readwrite', (store) => store.add({
+                        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                        name: image.name,
+                        image
+                    }));
+                }
+                albumStatus.textContent = files.length === images.length
+                    ? 'تم حفظ الصور على هذا الجهاز'
+                    : 'تم حفظ الصور الصالحة فقط';
+                albumStatus.dataset.state = files.length === images.length ? '' : 'error';
+                await renderPhotos();
+            } catch (error) {
+                albumStatus.textContent = 'تعذر حفظ الصور في هذا المتصفح';
+                albumStatus.dataset.state = 'error';
+                console.error('Unable to save photos to local database.', error);
+            }
+        });
+
+        function setSaveStatus(message, state = '') {
+            saveStatus.textContent = message;
+            saveStatus.dataset.state = state;
+        }
+
+        function updatePreview() {
+            const text = noteInput.value;
+            characterCount.textContent = `عدد الحروف: ${text.length}`;
+            preview.className = 'preview';
+
+            if (!text) {
+                preview.replaceChildren(Object.assign(document.createElement('span'), {
+                    className: 'preview-placeholder',
+                    textContent: 'ستظهر معاينتك هنا.'
+                }));
+                return;
+            }
+
+            if (currentMode === 'morse') {
+                preview.classList.add('morse');
+                preview.textContent = Array.from(text.toLowerCase())
+                    .map((character) => morseAlphabet[character] || character)
+                    .join(' ');
+            } else {
+                preview.textContent = text;
+                if (currentMode === 'melted') preview.classList.add('melted');
+            }
+        }
+
+        function saveNote() {
+            try {
+                if (noteInput.value) {
+                    localStorage.setItem(STORAGE_KEY, noteInput.value);
+                    setSaveStatus('محفوظ على هذا الجهاز', 'saved');
+                } else {
+                    localStorage.removeItem(STORAGE_KEY);
+                    setSaveStatus('جاهز للكتابة');
+                }
+            } catch (error) {
+                setSaveStatus('تعذر الحفظ في هذا المتصفح', 'error');
+                console.error('Unable to save the note to local storage.', error);
+            }
+        }
+
+        function loadNote() {
+            try {
+                noteInput.value = localStorage.getItem(STORAGE_KEY) || '';
+                setSaveStatus(noteInput.value ? 'تم استرجاع ملاحظتك' : 'جاهز للكتابة', noteInput.value ? 'saved' : '');
+            } catch (error) {
+                setSaveStatus('تعذر استرجاع الملاحظة', 'error');
+                console.error('Unable to load the note from local storage.', error);
+            }
+            updatePreview();
+        }
+
+        modeButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                currentMode = button.dataset.mode;
+                modeButtons.forEach((modeButton) => {
+                    modeButton.setAttribute('aria-pressed', String(modeButton === button));
+                });
+                updatePreview();
+            });
+        });
+
+        noteInput.addEventListener('input', () => {
+            updatePreview();
+            saveNote();
+        });
+
+        clearButton.addEventListener('click', () => {
+            if (!noteInput.value || window.confirm('هل تريد مسح الملاحظة المحفوظة؟')) {
+                noteInput.value = '';
+                updatePreview();
+                saveNote();
+                noteInput.focus();
+            }
+        });
+
+        loadNote();
+        renderPhotos();
+    </script>
+</body>
+</html>
